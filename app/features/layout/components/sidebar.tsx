@@ -8,14 +8,15 @@ import { Link } from "@remix-run/react";
 interface SidebarProps {
   playlists: Playlist[];
   setDialogOpen: (open: boolean) => void;
+  hasSession: boolean;
 }
 
-export function Sidebar({ playlists, setDialogOpen }: SidebarProps) {
+export function Sidebar({ playlists, setDialogOpen, hasSession }: SidebarProps) {
   return (
     <div className="h-full w-full border py-3 pl-8 pr-3">
       <div className="flex w-full justify-between">
         <h2 className="pb-2 pt-4 font-bold">Playlists</h2>
-        <Button onClick={() => setDialogOpen(true)} variant={"ghost"}>
+        <Button onClick={() => setDialogOpen(true)} variant={"ghost"} disabled={!hasSession}>
           <PlusIcon />
         </Button>
       </div>

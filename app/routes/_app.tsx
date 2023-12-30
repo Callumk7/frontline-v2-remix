@@ -54,6 +54,8 @@ export default function AppLayout() {
 
   const serverAccessToken = session?.access_token;
 
+  // This is all from the Remix example from supabase:
+  // https://github.com/supabase/auth-helpers/blob/main/examples/remix
   useEffect(() => {
     const {
       data: { subscription },
@@ -76,7 +78,7 @@ export default function AppLayout() {
       <Login supabase={supabase} session={session} />
       <div className="block h-full min-h-screen lg:grid lg:grid-cols-10">
         <div className="col-span-2 hidden h-full min-h-screen lg:block">
-          <Sidebar playlists={userPlaylists} setDialogOpen={setDialogOpen} />
+          <Sidebar playlists={userPlaylists} setDialogOpen={setDialogOpen} hasSession={session ? true : false} />
         </div>
         <div className="col-span-8 h-full">
           <Navbar />
@@ -85,11 +87,13 @@ export default function AppLayout() {
           </Container>
         </div>
       </div>
-      <CreatePlaylistDialog
-        userId={"userId"}
-        dialogOpen={dialogOpen}
-        setDialogOpen={setDialogOpen}
-      />
+      {session && (
+        <CreatePlaylistDialog
+          userId={session.user.id}
+          dialogOpen={dialogOpen}
+          setDialogOpen={setDialogOpen}
+        />
+      )}
     </>
   );
 }
