@@ -1,4 +1,5 @@
 import { auth } from "@/features/auth";
+import { createServerClient } from "@/features/auth/supabase/supabase.server";
 import {
   CollectionGame,
   CollectionMenubar,
@@ -10,16 +11,31 @@ import { useSort } from "@/features/library/hooks/sort";
 import { getUserPlaylists } from "@/features/playlists";
 import { GameWithCollection } from "@/types/games";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import { useOutletContext } from "@remix-run/react";
+import { Session, SupabaseClient } from "@supabase/supabase-js";
+import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
 
 ///
 /// LOADER FUNCTION
 ///
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const session = await auth(request);
+  const { supabase, headers } = createServerClient(request);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  const userCollectionPromise = getUserGameCollection(session.id);
-  const userPlaylistsPromise = getUserPlaylists(session.id);
+  if (!session) {
+    // there is no session, therefore, we are redirecting
+    // to the landing page. The `/?index` is required here
+    // for Remix to correctly call our loaders
+    return redirect("/?index", {
+      // we still need to return response.headers to attach the set-cookie header
+      headers,
+    });
+  }
+
+  const userCollectionPromise = getUserGameCollection(session.user.id);
+  const userPlaylistsPromise = getUserPlaylists(session.user.id);
 
   const [userCollection, userPlaylists] = await Promise.all([
     userCollectionPromise,
@@ -35,21 +51,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 /// ROUTE
 ///
 export default function CollectionRoute() {
-  const { session, userPlaylists, games } = useTypedLoaderData<typeof loader>();
+  const { userPlaylists, games } = useTypedLoaderData<typeof loader>();
+  const { supabase, session } = useOutletContext<{
+    supabase: SupabaseClient;
+    session: Session;
+  }>();
 
-  const { searchTerm, searchedGames, handleSearchTermChanged } =
-    useSearch(games);
+  const { searchTerm, searchedGames, handleSearchTermChanged } = useSearch(games);
 
-  const {
-    sortOption,
-    setSortOption,
-    sortedGames
-  } = useSort(searchedGames);
+  const { sortOption, setSortOption, sortedGames } = useSort(searchedGames);
 
   return (
     <div>
       <CollectionMenubar
-        userId={session.id}
+        userId={session.user.id}
         searchTerm={searchTerm}
         sortOption={sortOption}
         setSortOption={setSortOption}
@@ -59,7 +74,7 @@ export default function CollectionRoute() {
         {sortedGames.map((game) => (
           <CollectionGame
             game={game}
-            userId={session.id}
+            userId={session.user.id}
             gameId={game.gameId}
             coverId={game.cover.imageId}
             key={game.gameId}
