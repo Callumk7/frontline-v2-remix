@@ -1,21 +1,31 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 import { IGDB_BASE_URL } from "@/constants";
-import { auth } from "@/features/auth";
+import { createServerClient, getSession } from "@/features/auth";
 import { getCollectionGameIds } from "@/features/collection";
 import { SearchEntryControls, markResultsAsSaved } from "@/features/explore";
 import { ExploreGame } from "@/features/explore/components/SearchGame";
 import { GameCover, LibraryView } from "@/features/library";
 import { FetchOptions, fetchGamesFromIGDB } from "@/lib/igdb";
 import { IGDBGame, IGDBGameSchemaArray } from "@/types/igdb";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
-import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Form } from "@remix-run/react";
+import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  // Get the signed in user's collection, so we can display which games they already have
-  const session = await auth(request);
-  const gameIds = await getCollectionGameIds(session.id);
+  const { supabase, headers } = createServerClient(request);
+  const session = await getSession(supabase);
+
+  if (!session) {
+    // there is no session, therefore, we are redirecting
+    // to the landing page. The `/?index` is required here
+    // for Remix to correctly call our loaders
+    return redirect("/?index", {
+      // we still need to return response.headers to attach the set-cookie header
+      headers,
+    });
+  }
+  const gameIds = await getCollectionGameIds(session.user.id);
 
   const url = new URL(request.url);
   const search = url.searchParams.get("search");
@@ -68,7 +78,6 @@ export default function ExploreRoute() {
           <Input name="search" type="search" placeholder="What are you looking for?" />
           <Button variant={"outline"}>Search</Button>
         </Form>
-        <div></div>
         <LibraryView>
           {resultsMarkedAsSaved.map((game) => (
             <ExploreGame
@@ -76,7 +85,7 @@ export default function ExploreRoute() {
               game={game}
               coverId={game.cover.image_id}
               gameId={game.id}
-              userId={session.id}
+              userId={session.user.id}
             />
           ))}
         </LibraryView>

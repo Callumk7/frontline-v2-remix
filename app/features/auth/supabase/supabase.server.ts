@@ -1,4 +1,9 @@
-import { createServerClient as _createServerClient, parse, serialize } from "@supabase/ssr";
+import {
+	createServerClient as _createServerClient,
+	parse,
+	serialize,
+} from "@supabase/ssr";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export function createServerClient(request: Request) {
 	const cookies = parse(request.headers.get("Cookie") ?? "");
@@ -23,4 +28,11 @@ export function createServerClient(request: Request) {
 	);
 
 	return { supabase, headers };
+}
+
+export async function getSession(supabase: SupabaseClient) {
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+	return session
 }

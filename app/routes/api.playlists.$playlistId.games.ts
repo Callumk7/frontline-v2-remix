@@ -1,4 +1,3 @@
-import { auth } from "@/features/auth";
 import { gameToPlaylistSchema } from "@/types/api";
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { db } from "db";
@@ -7,7 +6,6 @@ import { and, eq } from "drizzle-orm";
 import { zx } from "zodix";
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-	const session = await auth(request);
 
 	const playlistId = params.playlistId;
 	if (!playlistId) {

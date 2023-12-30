@@ -1,5 +1,4 @@
-import { auth } from "@/features/auth";
-import { createServerClient } from "@/features/auth/supabase/supabase.server";
+import { createServerClient, getSession } from "@/features/auth";
 import {
   CollectionGame,
   CollectionMenubar,
@@ -20,9 +19,7 @@ import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
 ///
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabase, headers } = createServerClient(request);
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const session = await getSession(supabase);
 
   if (!session) {
     // there is no session, therefore, we are redirecting

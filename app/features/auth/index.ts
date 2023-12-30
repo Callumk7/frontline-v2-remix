@@ -1,13 +1,12 @@
 // Components
-import { SessionContext } from "./components/session-context";
+import { Login } from "./components/login";
 
 // Lib
-import { auth } from "./lib/auth-helper";
-import { sessionStorage } from "./lib/session.server";
-import { authenticator } from "./lib/auth.server";
+import { createServerClient } from "./supabase/supabase.server";
+import { getSession } from "./supabase/supabase.server";
 
-// Types
-import type { Session } from "./lib/auth.server";
-
-export { SessionContext, auth, sessionStorage, authenticator };
-export type { Session };
+export {
+	Login,
+	createServerClient,
+	getSession
+}
