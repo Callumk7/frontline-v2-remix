@@ -15,7 +15,7 @@ interface GameSortProps {
   setSortOption: (option: SortOption) => void;
 }
 
-export function GameSort({ sortOption, setSortOption }: GameSortProps) {
+export function GameSortAndFilterMenu({ sortOption, setSortOption }: GameSortProps) {
   return (
     <Menubar>
       <MenubarMenu>

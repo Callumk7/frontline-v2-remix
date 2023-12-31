@@ -36,7 +36,7 @@ export function CollectionGame({
           <GameCover coverId={coverId} />
         </CollectionContextMenu>
       </GameSlideOver>
-      <CollectionControls gameId={gameId} userId={userId} className="mt-3" />
+      <CollectionControls gameId={gameId} userId={userId} playlists={userPlaylists} className="mt-3" />
     </div>
   );
 }

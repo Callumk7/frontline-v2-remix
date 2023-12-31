@@ -10,8 +10,6 @@ import { useSort } from "@/features/library/hooks/sort";
 import { getUserPlaylists } from "@/features/playlists";
 import { GameWithCollection } from "@/types/games";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useOutletContext } from "@remix-run/react";
-import { Session, SupabaseClient } from "@supabase/supabase-js";
 import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
 
 ///
@@ -48,14 +46,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 /// ROUTE
 ///
 export default function CollectionRoute() {
-  const { userPlaylists, games } = useTypedLoaderData<typeof loader>();
-  const { supabase, session } = useOutletContext<{
-    supabase: SupabaseClient;
-    session: Session;
-  }>();
+  const { userPlaylists, games, session } = useTypedLoaderData<typeof loader>();
 
   const { searchTerm, searchedGames, handleSearchTermChanged } = useSearch(games);
-
   const { sortOption, setSortOption, sortedGames } = useSort(searchedGames);
 
   return (

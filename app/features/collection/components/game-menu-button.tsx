@@ -5,11 +5,10 @@ import {
   DropdownMenuItem,
   DropdownMenuSub,
   DropdownMenuSubContent,
-} from "@/components/ui/dropdown";
-import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+} from "@/components/ui/dropdown";
+import { Playlist } from "@/types/playlists";
 import {
   HamburgerMenuIcon,
   MixIcon,
@@ -55,9 +54,7 @@ export function GameMenuButton({ gameId, userId, playlists }: GameMenuButtonProp
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             {playlists.map((pl) => (
-              <DropdownMenuItem key={pl.id}>
-                {pl.name}
-              </DropdownMenuItem>
+              <DropdownMenuItem key={pl.id}>{pl.name}</DropdownMenuItem>
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuSub>

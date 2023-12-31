@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Link } from '@remix-run/react';
 import { Session, SupabaseClient } from '@supabase/supabase-js';
 
 export function Login({
@@ -45,9 +46,8 @@ export function Login({
 	return session ? (
 		<Button variant={"outline"} onClick={handleLogout}>Sign Out</Button>
 	) : (
-		<>
-			<Button onClick={handleEmailLogin}>Email Login</Button>
-			<Button onClick={handleGitHubLogin}>GitHub Login</Button>
-		</>
+			<Button asChild>
+        <Link to={"/login"}>Login</Link>
+      </Button>
 	);
 }

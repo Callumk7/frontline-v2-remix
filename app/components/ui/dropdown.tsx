@@ -1,6 +1,6 @@
 import { cn } from "@/util/cn";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { CheckIcon, CircleIcon, DotIcon } from "@radix-ui/react-icons";
+import { CaretRightIcon, CheckIcon, CircleIcon, DotIcon } from "@radix-ui/react-icons";
 import { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, forwardRef } from "react";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -19,14 +19,14 @@ const DropdownMenuSubTrigger = forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent",
+      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent",
       inset && "pl-8",
       className,
     )}
     {...props}
   >
     {children}
-    <DotIcon className="ml-auto h-4 w-4" />
+    <CaretRightIcon className="ml-auto h-4 w-4" />
   </DropdownMenuPrimitive.SubTrigger>
 ));
 DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayName;

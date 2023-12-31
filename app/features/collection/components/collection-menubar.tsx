@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 import { ChangeEvent } from "react";
 import { SortOption } from "@/features/library/hooks/sort";
-import { GameSort } from "@/features/library/components/game-sort";
+import { GameSortAndFilterMenu } from "@/features/library";
+import { GameSearchDialog } from "./game-search-dialog";
 
 interface CollectionMenubarProps {
   userId: string;
@@ -23,8 +24,8 @@ export function CollectionMenubar({
   return (
     <div className="flex justify-between">
       <div className="flex w-full justify-start gap-4">
-        <GameSearch userId={userId} />
-        <GameSort sortOption={sortOption} setSortOption={setSortOption} />
+        <GameSearchDialog userId={userId} />
+        <GameSortAndFilterMenu sortOption={sortOption} setSortOption={setSortOption} />
         <Button variant={"outline"}>Select..</Button>
       </div>
       <Input
