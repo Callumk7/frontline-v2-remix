@@ -10,7 +10,6 @@ import { CreatePlaylistDialog } from "@/features/playlists";
 import { createServerClient } from "@/features/auth/supabase/supabase.server";
 import { Playlist } from "@/types/playlists";
 import { createBrowserClient } from "@supabase/ssr";
-import { Login } from "@/features/auth/components/login";
 
 export const meta: MetaFunction = () => {
   return [{ title: "playQ" }, { name: "description", content: "What are you playing?" }];
@@ -75,13 +74,12 @@ export default function AppLayout() {
 
   return (
     <>
-      <Login supabase={supabase} session={session} />
       <div className="block h-full min-h-screen lg:grid lg:grid-cols-10">
         <div className="col-span-2 hidden h-full min-h-screen lg:block">
           <Sidebar playlists={userPlaylists} setDialogOpen={setDialogOpen} hasSession={session ? true : false} />
         </div>
         <div className="col-span-8 h-full">
-          <Navbar />
+          <Navbar supabase={supabase} session={session} />
           <Container className="mt-10">
             <Outlet context={{ supabase, session }} />
           </Container>

@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Login } from "@/features/auth";
 import { Link, NavLink } from "@remix-run/react";
+import { Session, SupabaseClient } from "@supabase/supabase-js";
 
 const links = [
   {
@@ -20,7 +22,12 @@ const links = [
   },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  supabase: SupabaseClient;
+  session: Session | null;
+}
+
+export function Navbar({ supabase, session }: NavbarProps) {
   return (
     <nav className="top-0 z-50 flex w-full flex-row items-center justify-between bg-background/80 px-6 py-4 backdrop-blur">
       <div className="flex flex-row justify-start gap-4">
@@ -28,9 +35,7 @@ export function Navbar() {
           <NavigationLink key={link.name} link={link} />
         ))}
       </div>
-      <form action="/sign-out" method="POST">
-        <Button variant={"outline"}>Sign Out</Button>
-      </form>
+      <Login supabase={supabase} session={session} />
     </nav>
   );
 }

@@ -38,10 +38,12 @@ export function Login({
 		if (error) {
 			console.log(error);
 		}
+
+    // TODO: add navigation to the home page
 	};
 
 	return session ? (
-		<Button onClick={handleLogout}>Logout</Button>
+		<Button variant={"outline"} onClick={handleLogout}>Sign Out</Button>
 	) : (
 		<>
 			<Button onClick={handleEmailLogin}>Email Login</Button>
