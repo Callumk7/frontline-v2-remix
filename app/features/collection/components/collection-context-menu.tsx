@@ -66,8 +66,7 @@ function PlaylistSubMenuItem({
 
   // This was just trying to validate the input, but it is kind of stupid
   // because the submit method has no validation. 
-  const gameInsert: GameIntoPlaylist = {
-    gameId,
+  const gameInsert = {
     addedBy: userId,
   };
 
@@ -79,14 +78,14 @@ function PlaylistSubMenuItem({
         if (checked) {
           addToPlaylistFetcher.submit(gameInsert, {
             method: "POST",
-            action: `/api/playlists/${playlist.id}/games`,
+            action: `/api/playlists/${playlist.id}/games/${gameId}`,
           });
         } else {
           addToPlaylistFetcher.submit(
             { gameId },
             {
               method: "DELETE",
-              action: `/api/playlists/${playlist.id}/games`,
+              action: `/api/playlists/${playlist.id}/games/${gameId}`,
             },
           );
         }

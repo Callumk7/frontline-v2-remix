@@ -1,9 +1,9 @@
 import { createServerClient, getSession } from "@/features/auth";
 import { Container } from "@/features/layout";
-import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { db } from "db";
-import { playlists } from "db/schema/playlists";
+import { PlaylistCard } from "@/features/playlists/components/playlist-card";
+import { getPlaylistsWithGames } from "@/features/playlists/lib/get-playlists-with-games";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { typedjson, useTypedLoaderData, redirect } from "remix-typedjson";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 
@@ -20,22 +20,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
   }
 
-  const allPlaylists = await db.select().from(playlists);
+  const allPlaylists = await getPlaylistsWithGames(10);
 
-  return json({ allPlaylists });
+  return typedjson({ allPlaylists });
 };
 
 
 export default function PlaylistView() {
-  const { allPlaylists } = useLoaderData<typeof loader>();
+  const { allPlaylists } = useTypedLoaderData<typeof loader>();
 
   return (
     <Container>
       <div className="grid grid-cols-4 gap-3">
         {allPlaylists.map((pl) => (
-          <div key={pl.id} className="rounded-lg bg-background-3 h-44 w-full p-5">
-            <Link className="font-bold hover:underline" to={`/playlists/${pl.id}`}>{pl.name}</Link>
-          </div>
+          <PlaylistCard key={pl.id} playlist={pl} games={pl.games.map(p => p.game)} />
         ))}
       </div>
     </Container>

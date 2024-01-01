@@ -5,33 +5,35 @@ import { playlists } from "db/schema/playlists";
 import { z } from "zod";
 import { zx } from "zodix";
 
-// This is the route handler for the "api/playlists" route.
-// It will be called with a POST request.
+// Route handler for the CREATION OF PLAYLISTS
 export const action = async ({ request }: ActionFunctionArgs) => {
 
+	// Safety net
 	if (request.method !== "POST") {
-		return json({ error: "Method not allowed" }, { status: 405 });
+		return json("Method not allowed", { status: 405 });
 	}
 
-	const formData = await zx.parseFormSafe(request, {
-		playlistName: z.string(),
-		userId: z.string(),
-	});
+	if (request.method === "POST") {
+		const result = await zx.parseFormSafe(request, {
+			playlistName: z.string(),
+			userId: z.string(),
+		});
 
-	if (!formData.success) {
-		return json({ error: "Invalid form data" }, { status: 400 });
+		if (!result.success) {
+			return json({ error: result.error }, { status: 400 });
+		}
+
+		const { playlistName, userId } = result.data;
+
+		const createdPlaylist = await db
+			.insert(playlists)
+			.values({
+				id: `pl_${uuidv4()}`,
+				name: playlistName,
+				creatorId: userId,
+			})
+			.returning();
+
+		return json({ success: true, playlist: createdPlaylist });
 	}
-
-	const { playlistName, userId } = formData.data;
-
-	const createdPlaylist = await db
-		.insert(playlists)
-		.values({
-			id: `pl_${uuidv4()}`,
-			name: playlistName,
-			creatorId: userId,
-		})
-		.returning();
-
-	return json({ success: true, playlist: createdPlaylist });
 };

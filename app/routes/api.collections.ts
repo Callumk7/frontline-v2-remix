@@ -1,9 +1,9 @@
 import { WORKER_URL } from "@/constants";
-import { gameToCollectionSchema } from "@/types/api";
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { db } from "db";
 import { usersToGames } from "db/schema/games";
 import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import { zx } from "zodix";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -12,7 +12,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 	// POST /api/collections
 	if (request.method === "POST") {
-		const result = await zx.parseFormSafe(request, gameToCollectionSchema);
+		const result = await zx.parseFormSafe(request, {
+			gameId: zx.NumAsString,
+			userId: z.string(),
+		});
 
 		if (result.success) {
 			const { gameId, userId } = result.data;
@@ -49,7 +52,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 	// DELETE /api/collections
 	if (request.method === "DELETE") {
-		const result = await zx.parseFormSafe(request, gameToCollectionSchema);
+		const result = await zx.parseFormSafe(request, {
+			gameId: zx.NumAsString,
+			userId: z.string()
+		});
 
 		if (result.success) {
 			// remove a game from the user's collection
