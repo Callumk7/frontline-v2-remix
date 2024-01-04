@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { DiscIcon, UpdateIcon } from "@radix-ui/react-icons";
+import { PlusIcon, UpdateIcon } from "@radix-ui/react-icons";
 import { useFetcher } from "@remix-run/react";
 
 interface SaveToCollectionButtonProps {
@@ -16,7 +16,7 @@ export function SaveToCollectionButton({ gameId, userId }: SaveToCollectionButto
       <input type="hidden" value={userId} name="userId" />
       {saveFetcher.state === "idle" ? (
         <Button variant={"ghost"} size={"icon"}>
-          <DiscIcon />
+          <PlusIcon />
         </Button>
       ) : (
         <div className="p-2">

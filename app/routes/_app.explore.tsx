@@ -6,10 +6,14 @@ import { getCollectionGameIds } from "@/features/collection";
 import { markResultsAsSaved } from "@/features/explore";
 import { ExploreGame } from "@/features/explore/components/SearchGame";
 import { LibraryView } from "@/features/library";
+import { GameListItem } from "@/features/library/components/game-list-item";
+import { ListView } from "@/features/library/components/list-view";
 import { FetchOptions, fetchGamesFromIGDB } from "@/lib/igdb";
 import { IGDBGame, IGDBGameSchemaArray } from "@/types/igdb";
+import { ViewGridIcon } from "@radix-ui/react-icons";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { Form } from "@remix-run/react";
+import { useState } from "react";
 import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -71,6 +75,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function ExploreRoute() {
   const { resultsMarkedAsSaved, session } = useTypedLoaderData<typeof loader>();
 
+  const [view, setView] = useState<"card" | "list">("card");
+
   return (
     <div>
       <div className="flex flex-col gap-y-6">
@@ -78,17 +84,44 @@ export default function ExploreRoute() {
           <Input name="search" type="search" placeholder="What are you looking for?" />
           <Button variant={"outline"}>Search</Button>
         </Form>
-        <LibraryView>
-          {resultsMarkedAsSaved.map((game) => (
-            <ExploreGame
-              key={game.id}
-              game={game}
-              coverId={game.cover.image_id}
-              gameId={game.id}
-              userId={session.user.id}
-            />
-          ))}
-        </LibraryView>
+        <Button
+          variant={"outline"}
+          size={"icon"}
+          onClick={() => {
+            if (view === "card") {
+              setView("list");
+            } else {
+              setView("card");
+            }
+          }}
+        >
+          <ViewGridIcon />
+        </Button>
+        {view === "card" ? (
+          <LibraryView>
+            {resultsMarkedAsSaved.map((game) => (
+              <ExploreGame
+                key={game.id}
+                game={game}
+                coverId={game.cover.image_id}
+                gameId={game.id}
+                userId={session.user.id}
+              />
+            ))}
+          </LibraryView>
+        ) : (
+          <ListView>
+            {resultsMarkedAsSaved.map((game) => (
+              <GameListItem
+                key={game.id}
+                gameTitle={game.name}
+                gameId={game.id}
+                userId={session.user.id}
+                game={game}
+              />
+            ))}
+          </ListView>
+        )}
       </div>
     </div>
   );
