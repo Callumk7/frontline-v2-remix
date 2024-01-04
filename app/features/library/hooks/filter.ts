@@ -1,18 +1,17 @@
+import { Genre } from "@/types/games";
 import { useState } from "react";
 
 interface WithGenres {
-	genres: { genre: { name: string } }[];
+	genres: Genre[];
 }
 
-interface WithUsers {
-	users: {
-		played: boolean | null;
-		completed: boolean | null;
-		playerRating: number | null;
-	}[];
+interface WithUserData {
+	played: boolean | null;
+	completed: boolean | null;
+	playerRating: number | null;
 }
 
-export const useFilter = <G extends WithGenres & WithUsers>(
+export const useFilter = <G extends WithGenres & WithUserData>(
 	games: G[],
 	genres: string[],
 ) => {
@@ -32,7 +31,7 @@ export const useFilter = <G extends WithGenres & WithUsers>(
 
 		if (
 			genreFilter.every((filterGenre) =>
-				game.genres.some((gameGenre) => gameGenre.genre.name === filterGenre),
+				game.genres.some((gameGenre) => gameGenre.name === filterGenre),
 			)
 		) {
 			return true;
@@ -40,16 +39,16 @@ export const useFilter = <G extends WithGenres & WithUsers>(
 	});
 
 	if (filterOnPlayed) {
-		output = output.filter((game) => game.users[0].played);
+		output = output.filter((game) => game.played);
 	}
 	if (filterOnCompleted) {
-		output = output.filter((game) => game.users[0].completed);
+		output = output.filter((game) => game.completed);
 	}
 	if (filterOnRated) {
-		output = output.filter((game) => game.users[0].playerRating !== null);
+		output = output.filter((game) => game.playerRating !== null);
 	}
 	if (filterOnUnrated) {
-		output = output.filter((game) => game.users[0].playerRating === null);
+		output = output.filter((game) => game.playerRating === null);
 	}
 
 	const filteredGames = output;

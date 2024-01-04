@@ -39,6 +39,16 @@ export function GameMenuButton({ gameId, userId, playlists }: GameMenuButtonProp
     );
   };
 
+  const handleMarkAsPlayed = () => {
+    fetcher.submit({
+      gameId,
+      played: true
+    }, {
+        method: "put",
+        action: `/api/collections/${userId}`
+      })
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -62,9 +72,9 @@ export function GameMenuButton({ gameId, userId, playlists }: GameMenuButtonProp
           <MixIcon className="mr-2" />
           <span>Rate game</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleMarkAsPlayed}>
           <StarIcon className="mr-2" />
-          <span>Add to favourites</span>
+          <span>Mark as played</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleRemove}>
           <TrashIcon className="mr-2" />

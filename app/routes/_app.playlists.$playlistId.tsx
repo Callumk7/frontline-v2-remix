@@ -1,12 +1,17 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { createServerClient, getSession } from "@/features/auth";
 import { GameCover, LibraryView } from "@/features/library";
 import { getPlaylistWithGames, getUserPlaylists } from "@/features/playlists";
 import { PlaylistMenubar } from "@/features/playlists/components/playlist-menubar";
+import { UpdateIcon } from "@radix-ui/react-icons";
 import { LoaderFunctionArgs } from "@remix-run/node";
+import { Form, useFetcher } from "@remix-run/react";
 import { db } from "db";
 import { games, usersToGames } from "db/schema/games";
 import { eq } from "drizzle-orm";
+import { useEffect, useState } from "react";
 import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
 import { z } from "zod";
 import { zx } from "zodix";
@@ -57,20 +62,45 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 ///
 export default function PlaylistRoute() {
   const { playlistWithGames, gamesArray } = useTypedLoaderData<typeof loader>();
+
+  const rename = useFetcher();
+  const isSubmitting = rename.state === "submitting";
+
+  const [renameDialogOpen, setRenameDialogOpen] = useState<boolean>();
+
+  useEffect(() => {
+    if (isSubmitting && renameDialogOpen) {
+      setRenameDialogOpen(false);
+    }
+  }, [isSubmitting, renameDialogOpen, setRenameDialogOpen]);
+
   return (
-    <div>
-      <PlaylistMenubar
-        games={gamesArray}
-        playlistId={playlistWithGames?.id}
-        userId={playlistWithGames?.creatorId}
-      />
-      <h1 className="mt-5 py-2 text-3xl font-semibold">{playlistWithGames?.name}</h1>
-      <Separator />
-      <LibraryView>
-        {playlistWithGames?.games.map((game) => (
-          <GameCover key={game.game.id} coverId={game.game.cover.imageId} />
-        ))}
-      </LibraryView>
-    </div>
+    <>
+      <div>
+        <PlaylistMenubar
+          games={gamesArray}
+          playlistId={playlistWithGames!.id}
+          userId={playlistWithGames!.creatorId}
+          setRenameDialogOpen={setRenameDialogOpen}
+        />
+        <h1 className="mt-5 py-2 text-3xl font-semibold">{playlistWithGames?.name}</h1>
+        <Separator />
+        <LibraryView>
+          {playlistWithGames?.games.map((game) => (
+            <GameCover key={game.game.id} coverId={game.game.cover.imageId} />
+          ))}
+        </LibraryView>
+      </div>
+      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Choose a new name</DialogTitle>
+          </DialogHeader>
+          <rename.Form method="PUT" action={`/api/playlists/${playlistWithGames!.id}`}>
+            <Input name="playlistName" type="text" />
+          </rename.Form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

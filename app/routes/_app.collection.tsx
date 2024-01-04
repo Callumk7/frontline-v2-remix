@@ -5,7 +5,12 @@ import {
   getUserGameCollection,
 } from "@/features/collection";
 import { transformCollectionIntoGames } from "@/features/collection/lib/get-game-collection";
-import { LibraryView, useSearch } from "@/features/library";
+import {
+  getAllGenres,
+  getGenresAndCount,
+} from "@/features/collection/lib/get-user-genres";
+import { LibraryView, useFilter, useSearch } from "@/features/library";
+import { GenreFilter } from "@/features/library/components/genre-filter";
 import { useSort } from "@/features/library/hooks/sort";
 import { getUserPlaylists } from "@/features/playlists";
 import { GameWithCollection } from "@/types/games";
@@ -31,34 +36,74 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const userCollectionPromise = getUserGameCollection(session.user.id);
   const userPlaylistsPromise = getUserPlaylists(session.user.id);
+  const allGenresPromise = getAllGenres();
 
-  const [userCollection, userPlaylists] = await Promise.all([
+  const [userCollection, userPlaylists, allGenres] = await Promise.all([
     userCollectionPromise,
     userPlaylistsPromise,
+    allGenresPromise,
   ]);
 
   const games: GameWithCollection[] = transformCollectionIntoGames(userCollection);
+  const gameIds = games.map((game) => game.gameId);
+  const genreNames = allGenres.map((genre) => genre.name);
 
-  return typedjson({ session, userPlaylists, games });
+  return typedjson({ session, userPlaylists, games, genreNames });
 };
 
 ///
 /// ROUTE
 ///
 export default function CollectionRoute() {
-  const { userPlaylists, games, session } = useTypedLoaderData<typeof loader>();
+  const { userPlaylists, games, session, genreNames } =
+    useTypedLoaderData<typeof loader>();
 
-  const { searchTerm, searchedGames, handleSearchTermChanged } = useSearch(games);
+  const {
+		genreFilter,
+		setGenreFilter,
+		filteredGames,
+		handleGenreToggled,
+		handleToggleAllGenres,
+		filterOnPlayed,
+		filterOnCompleted,
+		filterOnStarred,
+		filterOnRated,
+		filterOnUnrated,
+		handleToggleFilterOnPlayed,
+		handleToggleFilterOnCompleted,
+		handleToggleFilterOnStarred,
+		handleToggleFilterOnRated,
+		handleToggleFilterOnUnrated,
+  } = useFilter(games, genreNames);
+  const { searchTerm, searchedGames, handleSearchTermChanged } = useSearch(filteredGames);
   const { sortOption, setSortOption, sortedGames } = useSort(searchedGames);
 
   return (
     <div>
+      <div className="my-3">
+        <GenreFilter
+          genres={genreNames}
+          genreFilter={genreFilter}
+          handleGenreToggled={handleGenreToggled}
+          handleToggleAllGenres={handleToggleAllGenres}
+        />
+      </div>
       <CollectionMenubar
         userId={session.user.id}
         searchTerm={searchTerm}
         sortOption={sortOption}
         setSortOption={setSortOption}
         handleSearchTermChanged={handleSearchTermChanged}
+        filterOnPlayed={filterOnPlayed}
+        filterOnCompleted={filterOnCompleted}
+        filterOnRated={filterOnRated}
+        filterOnUnrated={filterOnUnrated}
+        filterOnStarred={filterOnStarred}
+        handleToggleFilterOnPlayed={handleToggleFilterOnPlayed}
+        handleToggleFilterOnCompleted={handleToggleFilterOnCompleted}
+        handleToggleFilterOnRated={handleToggleFilterOnRated}
+        handleToggleFilterOnUnrated={handleToggleFilterOnUnrated}
+        handleToggleFilterOnStarred={handleToggleFilterOnStarred}
       />
       <LibraryView>
         {sortedGames.map((game) => (

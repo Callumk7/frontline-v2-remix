@@ -1,5 +1,6 @@
 import {
   Menubar,
+  MenubarCheckboxItem,
   MenubarContent,
   MenubarItem,
   MenubarMenu,
@@ -13,9 +14,32 @@ import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
 interface GameSortProps {
   sortOption: SortOption;
   setSortOption: (option: SortOption) => void;
+  filterOnPlayed: boolean;
+  filterOnCompleted: boolean;
+  filterOnStarred: boolean;
+  filterOnRated: boolean;
+  filterOnUnrated: boolean;
+  handleToggleFilterOnPlayed: () => void;
+  handleToggleFilterOnCompleted: () => void;
+  handleToggleFilterOnStarred: () => void;
+  handleToggleFilterOnRated: () => void;
+  handleToggleFilterOnUnrated: () => void;
 }
 
-export function GameSortAndFilterMenu({ sortOption, setSortOption }: GameSortProps) {
+export function GameSortAndFilterMenu({
+  sortOption,
+  setSortOption,
+  filterOnPlayed,
+  filterOnCompleted,
+  filterOnRated,
+  filterOnUnrated,
+  filterOnStarred,
+  handleToggleFilterOnPlayed,
+  handleToggleFilterOnCompleted,
+  handleToggleFilterOnRated,
+  handleToggleFilterOnUnrated,
+  handleToggleFilterOnStarred,
+}: GameSortProps) {
   return (
     <Menubar>
       <MenubarMenu>
@@ -63,8 +87,19 @@ export function GameSortAndFilterMenu({ sortOption, setSortOption }: GameSortPro
       <MenubarMenu>
         <MenubarTrigger>Filters</MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>Completed</MenubarItem>
-          <MenubarItem>Playing</MenubarItem>
+          <MenubarCheckboxItem
+            checked={filterOnCompleted}
+            onClick={handleToggleFilterOnCompleted}
+          >
+            Completed
+          </MenubarCheckboxItem>
+          <MenubarCheckboxItem
+            checked={filterOnPlayed}
+            onClick={handleToggleFilterOnPlayed}
+          >
+            Played
+          </MenubarCheckboxItem>
+          <MenubarItem inset>Starred</MenubarItem>
         </MenubarContent>
       </MenubarMenu>
     </Menubar>

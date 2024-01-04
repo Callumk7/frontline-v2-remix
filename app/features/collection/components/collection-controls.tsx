@@ -1,6 +1,4 @@
 import { cn } from "@/util/cn";
-import { RemoveFromCollectionButton } from "./remove-from-collection-button";
-import { ReorderButtons } from "./reorder-buttons";
 import { GameMenuButton } from "..";
 import { Playlist } from "@/types/playlists";
 

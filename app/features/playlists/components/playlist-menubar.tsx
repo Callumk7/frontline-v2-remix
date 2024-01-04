@@ -7,14 +7,16 @@ import {
 } from "@/components/ui/menubar";
 import { Game } from "@/types/games";
 import { useFetcher } from "@remix-run/react";
+import { useState } from "react";
 
 interface PlaylistMenubarProps {
   games: Game[];
   playlistId: string;
   userId: string;
+  setRenameDialogOpen: (renameDialogOpen: boolean) => void;
 }
 
-export function PlaylistMenubar({ games, playlistId, userId }: PlaylistMenubarProps) {
+export function PlaylistMenubar({ games, playlistId, userId, setRenameDialogOpen }: PlaylistMenubarProps) {
   const addGameFetcher = useFetcher();
   return (
     <div className="flex justify-between">
@@ -23,7 +25,7 @@ export function PlaylistMenubar({ games, playlistId, userId }: PlaylistMenubarPr
           <MenubarTrigger>Playlist</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>Delete</MenubarItem>
-            <MenubarItem>Rename</MenubarItem>
+            <MenubarItem onClick={() => setRenameDialogOpen(true)}>Rename</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>

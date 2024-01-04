@@ -4,7 +4,8 @@ import { Label } from "@/components/ui/label";
 import { createServerClient, getSession } from "@/features/auth";
 import { Container } from "@/features/layout";
 import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
-import { useActionData } from "@remix-run/react";
+import { useActionData, useLoaderData } from "@remix-run/react";
+import { createBrowserClient } from "@supabase/ssr";
 import { AuthError } from "@supabase/supabase-js";
 import { ZodError, z } from "zod";
 import { zx } from "zodix";
@@ -16,11 +17,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabase, headers } = createServerClient(request);
   const session = await getSession(supabase);
 
+  const ENV = {
+    SUPABASE_URL: process.env.SUPABASE_URL!,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY!
+  }
+
   if (session) {
     return redirect("/", { headers });
   }
 
-  return null;
+  return ENV;
 };
 
 ///
@@ -50,21 +56,33 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function LoginPage() {
-  // TODO: Good error handling.. this ain't it chief
-  //
-  // const data = useActionData<typeof action>();
-  //
-  // let zodError: ZodError | null = null;
-  // let supaError: AuthError | null = null;
-  // if (data) {
-  //   if (data.error instanceof ZodError) {
-  //     zodError = data.error;
-  //     console.log(zodError)
-  //   } else if (data.error instanceof AuthError) {
-  //     supaError = data.error;
-  //     console.log(supaError);
-  //   }
-  // }
+  const ENV = useLoaderData<typeof loader>()
+  const supabase = createBrowserClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
+
+  const handleGitHubLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${location.origin}/callback`,
+      },
+    });
+
+    if (error) {
+      console.log({ error });
+    }
+  };
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${location.origin}/callback`,
+      },
+    });
+
+    if (error) {
+      console.log({ error });
+    }
+  };
 
   return (
     <Container className="mt-10 flex h-[80vh] flex-col items-center justify-center">
@@ -84,6 +102,14 @@ export default function LoginPage() {
         </div>
         <Button>Sign In</Button>
       </form>
+      <div className="mt-9 flex w-2/3 justify-between gap-4">
+        <Button variant={"secondary"} className="w-full" onClick={handleGitHubLogin}>
+          Sign In With Github
+        </Button>
+        <Button variant={"secondary"} className="w-full" onClick={handleGoogleLogin}>
+          Sign In With Google
+        </Button>
+      </div>
     </Container>
   );
 }
