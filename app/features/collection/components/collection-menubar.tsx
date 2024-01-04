@@ -4,6 +4,7 @@ import { ChangeEvent } from "react";
 import { SortOption } from "@/features/library/hooks/sort";
 import { GameSortAndFilterMenu } from "@/features/library";
 import { GameSearchDialog } from "./game-search-dialog";
+import useFilterStore from "@/store/filters";
 
 interface CollectionMenubarProps {
   userId: string;
