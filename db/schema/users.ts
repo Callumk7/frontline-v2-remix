@@ -1,10 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-	boolean,
-	pgTable,
-	text,
-	timestamp,
-} from "drizzle-orm/pg-core";
+import { boolean, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { usersToGames } from "./games";
 
 export const users = pgTable("users", {
@@ -25,5 +20,35 @@ export const users = pgTable("users", {
 
 export const usersRelations = relations(users, ({ many }) => ({
 	games: many(usersToGames),
+	friends: many(friends, {
+		relationName: "friend",
+	}),
+	friendsOf: many(friends, {
+		relationName: "user",
+	}),
 }));
 
+export const friends = pgTable(
+	"friends",
+	{
+		userId: text("user_id").notNull(),
+		friendId: text("friend_id").notNull(),
+	},
+
+	(t) => ({
+		pk: primaryKey(t.userId, t.friendId),
+	}),
+);
+
+export const friendsRelations = relations(friends, ({ one }) => ({
+	friend: one(users, {
+		fields: [friends.userId],
+		references: [users.id],
+		relationName: "friend",
+	}),
+	user: one(users, {
+		fields: [friends.friendId],
+		references: [users.id],
+		relationName: "user",
+	}),
+}));

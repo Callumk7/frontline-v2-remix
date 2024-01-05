@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label";
 import { createServerClient } from "@/features/auth/supabase/supabase.server";
 import { Container } from "@/features/layout";
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { db } from "db";
+import { users } from "db/schema/users";
 import { z } from "zod";
 import { zx } from "zodix";
 
@@ -23,8 +25,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       password: result.data.password,
     });
 
-    return redirect("/", { headers });
+    if (res.error) {
+      return json({ failure: res.error });
+    }
 
+    await db.insert(users).values({
+      username: result.data.email,
+      email: result.data.email,
+      password: result.data.password,
+      id: res.data.user!.id, // this is from supabase
+    });
+
+    return redirect("/", { headers });
   } else return json({ failure: result.error });
 };
 
