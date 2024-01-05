@@ -22,9 +22,15 @@ interface GameMenuButtonProps {
   gameId: number;
   userId: string;
   playlists: Playlist[];
+  setIsRateGameDialogOpen: (isDialogOpen: boolean) => void;
 }
 
-export function GameMenuButton({ gameId, userId, playlists }: GameMenuButtonProps) {
+export function GameMenuButton({
+  gameId,
+  userId,
+  playlists,
+  setIsRateGameDialogOpen,
+}: GameMenuButtonProps) {
   const fetcher = useFetcher();
   const handleRemove = () => {
     fetcher.submit(
@@ -40,14 +46,17 @@ export function GameMenuButton({ gameId, userId, playlists }: GameMenuButtonProp
   };
 
   const handleMarkAsPlayed = () => {
-    fetcher.submit({
-      gameId,
-      played: true
-    }, {
+    fetcher.submit(
+      {
+        gameId,
+        played: true,
+      },
+      {
         method: "put",
-        action: `/api/collections/${userId}`
-      })
-  }
+        action: `/api/collections/${userId}`,
+      },
+    );
+  };
 
   return (
     <DropdownMenu>
@@ -68,7 +77,7 @@ export function GameMenuButton({ gameId, userId, playlists }: GameMenuButtonProp
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setIsRateGameDialogOpen(true)}>
           <MixIcon className="mr-2" />
           <span>Rate game</span>
         </DropdownMenuItem>

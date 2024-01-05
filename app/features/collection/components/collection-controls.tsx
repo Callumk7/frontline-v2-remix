@@ -7,6 +7,7 @@ interface CollectionControlsProps {
   userId: string;
   className?: string;
   playlists: Playlist[];
+  setIsRateGameDialogOpen: (isDialogOpen: boolean) => void;
 }
 
 export function CollectionControls({
@@ -14,6 +15,7 @@ export function CollectionControls({
   userId,
   className,
   playlists,
+  setIsRateGameDialogOpen,
 }: CollectionControlsProps) {
   return (
     <div
@@ -22,7 +24,12 @@ export function CollectionControls({
         "flex w-fit flex-row items-center justify-end gap-2 rounded-md border bg-background-3 p-1",
       )}
     >
-      <GameMenuButton gameId={gameId} userId={userId} playlists={playlists} />
+      <GameMenuButton
+        gameId={gameId}
+        userId={userId}
+        playlists={playlists}
+        setIsRateGameDialogOpen={setIsRateGameDialogOpen}
+      />
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { CollectionContextMenu } from "./collection-context-menu";
 import { GameCover } from "@/features/library";
 import { GameSlideOver } from "@/features/library/components/game-slideover";
 import { GameWithCollection } from "@/types/games";
+import { useState } from "react";
+import { RateGameDialog } from "./rate-game-dialog";
 
 interface CollectionGameProps {
   game: GameWithCollection;
@@ -24,24 +26,35 @@ export function CollectionGame({
   gameId,
   userId,
 }: CollectionGameProps) {
+  const [isRateGameDialogOpen, setIsRateGameDialogOpen] = useState<boolean>(false);
+
   return (
-    <div>
-      <GameSlideOver game={game}>
-        <CollectionContextMenu
+    <>
+      <div>
+        <GameSlideOver game={game}>
+          <CollectionContextMenu
+            gameId={gameId}
+            userId={userId}
+            playlists={userPlaylists}
+            gamePlaylists={gamePlaylists}
+          >
+            <GameCover coverId={coverId} />
+          </CollectionContextMenu>
+        </GameSlideOver>
+        <CollectionControls
           gameId={gameId}
           userId={userId}
           playlists={userPlaylists}
-          gamePlaylists={gamePlaylists}
-        >
-          <GameCover coverId={coverId} />
-        </CollectionContextMenu>
-      </GameSlideOver>
-      <CollectionControls
-        gameId={gameId}
+          setIsRateGameDialogOpen={setIsRateGameDialogOpen}
+          className="mt-1"
+        />
+      </div>
+      <RateGameDialog
         userId={userId}
-        playlists={userPlaylists}
-        className="mt-1"
+        gameId={gameId}
+        isRateGameDialogOpen={isRateGameDialogOpen}
+        setIsRateDialogOpen={setIsRateGameDialogOpen}
       />
-    </div>
+    </>
   );
 }
