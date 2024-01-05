@@ -12,9 +12,13 @@ import { FetchOptions, fetchGamesFromIGDB } from "@/lib/igdb";
 import { IGDBGame, IGDBGameSchemaArray } from "@/types/igdb";
 import { ViewGridIcon } from "@radix-ui/react-icons";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { Form } from "@remix-run/react";
-import { useState } from "react";
-import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
+import { useEffect, useState } from "react";
+import {
+  redirect,
+  typedjson,
+  useTypedFetcher,
+  useTypedLoaderData,
+} from "remix-typedjson";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { supabase, headers } = createServerClient(request);
@@ -73,17 +77,24 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function ExploreRoute() {
-  const { resultsMarkedAsSaved, session } = useTypedLoaderData<typeof loader>();
+  const loaderData = useTypedLoaderData<typeof loader>();
+  const fetcher = useTypedFetcher<typeof loader>();
+  const [data, setData] = useState(loaderData);
+
+  useEffect(() => {
+    if (fetcher.data !== undefined && fetcher.data !== data) {
+      setData(fetcher.data);
+    }
+  }, [fetcher, data]);
 
   const [view, setView] = useState<"card" | "list">("card");
-
   return (
     <div>
       <div className="flex flex-col gap-y-6">
-        <Form method="get" className="flex max-w-md gap-3">
+        <fetcher.Form method="get" className="flex max-w-md gap-3">
           <Input name="search" type="search" placeholder="What are you looking for?" />
           <Button variant={"outline"}>Search</Button>
-        </Form>
+        </fetcher.Form>
         <Button
           variant={"outline"}
           size={"icon"}
@@ -99,24 +110,24 @@ export default function ExploreRoute() {
         </Button>
         {view === "card" ? (
           <LibraryView>
-            {resultsMarkedAsSaved.map((game) => (
+            {data.resultsMarkedAsSaved.map((game) => (
               <ExploreGame
                 key={game.id}
                 game={game}
                 coverId={game.cover.image_id}
                 gameId={game.id}
-                userId={session.user.id}
+                userId={data.session.user.id}
               />
             ))}
           </LibraryView>
         ) : (
           <ListView>
-            {resultsMarkedAsSaved.map((game) => (
+            {fetcher.data.resultsMarkedAsSaved.map((game) => (
               <GameListItem
                 key={game.id}
                 gameTitle={game.name}
                 gameId={game.id}
-                userId={session.user.id}
+                userId={data.session.user.id}
                 game={game}
               />
             ))}
