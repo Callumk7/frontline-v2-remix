@@ -5,7 +5,7 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "db";
 import { usersToGames } from "db/schema/games";
-import { eq, gt, sql } from "drizzle-orm";
+import { desc, eq, gt, sql } from "drizzle-orm";
 
 ///
 /// LOADER
@@ -31,6 +31,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return ratingB - ratingA;
   });
 
+  const averageRatedGames = await db
+    .select({
+      gameId: usersToGames.gameId,
+      averageRating: sql`avg(${usersToGames.playerRating})`.mapWith(Number),
+      averageRatingCount: sql`count(${usersToGames.playerRating})`,
+    })
+    .from(usersToGames)
+    .groupBy(usersToGames.gameId)
+    .orderBy(desc( sql`avg(${usersToGames.playerRating})`.mapWith(Number) ));
+
   const popularGames = await db
     .select({
       gameId: usersToGames.gameId,
@@ -41,7 +51,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   popularGames.sort((a, b) => b.count - a.count);
 
-  return json({ topRatedGames }, { headers });
+  return json({ topRatedGames, averageRatedGames }, { headers });
 };
 
 export default function AppIndex() {

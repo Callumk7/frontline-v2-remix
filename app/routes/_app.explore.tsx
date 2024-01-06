@@ -10,9 +10,9 @@ import { GameListItem } from "@/features/library/components/game-list-item";
 import { ListView } from "@/features/library/components/list-view";
 import { FetchOptions, fetchGamesFromIGDB } from "@/lib/igdb";
 import { IGDBGame, IGDBGameSchemaArray } from "@/types/igdb";
-import { ViewGridIcon } from "@radix-ui/react-icons";
+import { ArrowLeftIcon, ArrowRightIcon, ViewGridIcon } from "@radix-ui/react-icons";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   redirect,
   typedjson,
@@ -37,14 +37,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const url = new URL(request.url);
   const search = url.searchParams.get("search");
-  const genreIdsParam = url.searchParams.get("genre_ids");
-  const genreIds: number[] = genreIdsParam ? genreIdsParam.split(",").map(Number) : [];
+  const offset = url.searchParams.get("offset");
 
   // Search results from IGDB
   let searchResults: IGDBGame[] = [];
   const searchOptions: FetchOptions = {
     fields: ["name", "cover.image_id"],
-    limit: 30,
+    limit: 50,
     filters: [
       "cover != null",
       "parent_game = null",
@@ -53,11 +52,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     ],
   };
 
+  if (offset) {
+    searchOptions.offset = Number(offset);
+  }
+
   if (search) {
     searchOptions.search = search;
-    if (genreIds.length > 0) {
-      searchOptions.filters?.push(`genres = (${genreIds.join(",")})`);
-    }
   } else {
     searchOptions.sort = ["rating desc"];
     searchOptions.filters?.push("follows > 250", "rating > 80");
@@ -79,7 +79,35 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function ExploreRoute() {
   const loaderData = useTypedLoaderData<typeof loader>();
   const fetcher = useTypedFetcher<typeof loader>();
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [data, setData] = useState(loaderData);
+
+  // handling search params
+  const [offset, setOffset] = useState<number>(0);
+
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  const handleIncreaseOffset = () => {
+    const newOffset = offset + 50;
+    setOffset(newOffset);
+  };
+
+  const handleDecreaseOffset = () => {
+    const newOffset = offset - 50;
+    if (newOffset <= 0) {
+      setOffset(0);
+    } else {
+      setOffset(newOffset);
+    }
+  };
+
+  // This ensures that we get the new offset value when 
+  // triggering the fetch.
+  useEffect(() => {
+    console.log(offset);
+    fetcher.submit(formRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offset]); // This effect runs whenever 'offset' changes
 
   useEffect(() => {
     if (fetcher.data !== undefined && fetcher.data !== data) {
@@ -87,27 +115,43 @@ export default function ExploreRoute() {
     }
   }, [fetcher, data]);
 
-  const [view, setView] = useState<"card" | "list">("card");
+  const [view, setView] = useState<"card" | "list">("list");
   return (
     <div>
+      {offset}
       <div className="flex flex-col gap-y-6">
-        <fetcher.Form method="get" className="flex max-w-md gap-3">
-          <Input name="search" type="search" placeholder="What are you looking for?" />
+        <fetcher.Form ref={formRef} method="get" className="flex max-w-md gap-3" onSubmit={() => setOffset(0)}>
+          <Input
+            name="search"
+            type="search"
+            placeholder="What are you looking for?"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <input type="hidden" value={offset} name="offset" />
           <Button variant={"outline"}>Search</Button>
         </fetcher.Form>
-        <Button
-          variant={"outline"}
-          size={"icon"}
-          onClick={() => {
-            if (view === "card") {
-              setView("list");
-            } else {
-              setView("card");
-            }
-          }}
-        >
-          <ViewGridIcon />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant={"outline"}
+            size={"icon"}
+            onClick={() => {
+              if (view === "card") {
+                setView("list");
+              } else {
+                setView("card");
+              }
+            }}
+          >
+            <ViewGridIcon />
+          </Button>
+          <Button variant={"outline"} size={"icon"} onClick={handleDecreaseOffset}>
+            <ArrowLeftIcon />
+          </Button>
+          <Button variant={"outline"} size={"icon"} onClick={handleIncreaseOffset}>
+            <ArrowRightIcon />
+          </Button>
+        </div>
         {view === "card" ? (
           <LibraryView>
             {data.resultsMarkedAsSaved.map((game) => (
@@ -122,7 +166,7 @@ export default function ExploreRoute() {
           </LibraryView>
         ) : (
           <ListView>
-            {fetcher.data.resultsMarkedAsSaved.map((game) => (
+            {data.resultsMarkedAsSaved.map((game) => (
               <GameListItem
                 key={game.id}
                 gameTitle={game.name}

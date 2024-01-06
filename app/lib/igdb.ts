@@ -3,6 +3,7 @@ import { FULL_GAME_FIELDS } from "@/constants";
 export interface FetchOptions {
 	fields?: string[] | "full";
 	limit?: number;
+	offset?: number;
 	filters?: string[];
 	sort?: string[];
 	search?: string;
@@ -32,10 +33,13 @@ export const fetchGamesFromIGDB = async (
 		body += `limit ${options.limit};`;
 	}
 
+	if (options.offset) {
+		body += `offset ${options.offset};`
+	}
+
 	if (options.filters) {
 		body += `where ${options.filters.join("& ")};`;
 	}
-	console.log(body);
 
 	if (options.sort) {
 		body += `sort ${options.sort.join(", ")};`;
