@@ -9,21 +9,38 @@ import {
 import { GameWithCollection } from "@/types/games";
 import { DBImage } from "./game-cover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { useState } from "react";
 
 interface GameSlideOverProps {
   game: GameWithCollection;
   children: React.ReactNode;
 }
 export function GameSlideOver({ game, children }: GameSlideOverProps) {
+  const [rating, setRating] = useState<number>(() => {
+    if (game.playerRating === null) {
+      return 0;
+    } else {
+      return game.playerRating;
+    }
+  });
   return (
     <SlideOver>
       <SlideOverTrigger>{children}</SlideOverTrigger>
       <SlideOverContent>
-        {game.artworks[0] && (
-          <DBImage imageId={game.artworks[0].imageId} size="1080p" className="absolute left-0 right-0 aspect-auto"/>
-        )}
-        <ScrollArea className="h-full w-full">
-          <div className="grid grid-cols-2 gap-4"></div>
+        <ScrollArea className="h-full w-full p-9">
+          <div className="flex flex-col gap-2">
+            <h1 className="py-3 text-5xl font-bold">{game.title}</h1>
+            <Separator />
+            <div className="grid grid-cols-4">
+              <div className="col-span-1">
+                <h3 className="font-semibold">Stats</h3>
+                <p>Rating</p>
+                <Slider value={[ rating ]} onValueChange={(v) => setRating(v[0])} />
+              </div>
+            </div>
+          </div>
         </ScrollArea>
       </SlideOverContent>
     </SlideOver>

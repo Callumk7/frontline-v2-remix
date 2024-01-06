@@ -2,6 +2,7 @@ import { GameWithCollection, gameWithCollectionSchema } from "@/types/games";
 import { db } from "db";
 import { usersToGames } from "db/schema/games";
 import { eq } from "drizzle-orm";
+import { ZodError } from "zod";
 
 export const getUserGameCollection = async (userId: string) => {
 	const userCollection = await db.query.usersToGames.findMany({
@@ -48,7 +49,12 @@ export const transformCollectionIntoGames = (
 		games.forEach((g) => gameWithCollectionSchema.parse(g));
 		return games;
 	} catch (e) {
-		console.error(e);
+		console.error("THERE IS AN ERROR HERE")
+		if (e instanceof ZodError) {
+			console.error(e.flatten())
+		} else {
+			console.error(e);
+		}
 		return [];
 	}
 };

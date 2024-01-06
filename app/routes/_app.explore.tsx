@@ -4,7 +4,7 @@ import { IGDB_BASE_URL } from "@/constants";
 import { createServerClient, getSession } from "@/features/auth";
 import { getCollectionGameIds } from "@/features/collection";
 import { markResultsAsSaved } from "@/features/explore";
-import { ExploreGame } from "@/features/explore/components/SearchGame";
+import { ExploreGame } from "@/features/explore/components/search-game";
 import { LibraryView } from "@/features/library";
 import { GameListItem } from "@/features/library/components/game-list-item";
 import { ListView } from "@/features/library/components/list-view";
@@ -101,12 +101,12 @@ export default function ExploreRoute() {
     }
   };
 
-  // This ensures that we get the new offset value when 
+  // This ensures that we get the new offset value when
   // triggering the fetch.
   useEffect(() => {
     console.log(offset);
     fetcher.submit(formRef.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offset]); // This effect runs whenever 'offset' changes
 
   useEffect(() => {
@@ -117,10 +117,14 @@ export default function ExploreRoute() {
 
   const [view, setView] = useState<"card" | "list">("list");
   return (
-    <div>
-      {offset}
+    <div className="mb-12">
       <div className="flex flex-col gap-y-6">
-        <fetcher.Form ref={formRef} method="get" className="flex max-w-md gap-3" onSubmit={() => setOffset(0)}>
+        <fetcher.Form
+          ref={formRef}
+          method="get"
+          className="flex max-w-md gap-3"
+          onSubmit={() => setOffset(0)}
+        >
           <Input
             name="search"
             type="search"
@@ -177,6 +181,27 @@ export default function ExploreRoute() {
             ))}
           </ListView>
         )}
+        <div className="flex gap-2">
+          <Button
+            variant={"outline"}
+            size={"icon"}
+            onClick={() => {
+              if (view === "card") {
+                setView("list");
+              } else {
+                setView("card");
+              }
+            }}
+          >
+            <ViewGridIcon />
+          </Button>
+          <Button variant={"outline"} size={"icon"} onClick={handleDecreaseOffset}>
+            <ArrowLeftIcon />
+          </Button>
+          <Button variant={"outline"} size={"icon"} onClick={handleIncreaseOffset}>
+            <ArrowRightIcon />
+          </Button>
+        </div>
       </div>
     </div>
   );

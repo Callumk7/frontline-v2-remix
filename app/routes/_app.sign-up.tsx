@@ -36,7 +36,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       id: res.data.user!.id, // this is from supabase
     });
 
-    return redirect("/", { headers });
+    return redirect("/sign-up-confirmation", { headers });
   } else return json({ failure: result.error });
 };
 
@@ -57,7 +57,7 @@ export default function SignUpPage() {
             placeholder="enter your password"
           />
         </div>
-        <Button>Sign In</Button>
+        <Button>Sign Up</Button>
       </form>
     </Container>
   );
