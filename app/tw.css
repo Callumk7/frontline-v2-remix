@@ -3,61 +3,62 @@
 @tailwind utilities;
 
 @layer base {
-	:root {
-        --primary: 63 91% 65%; /* yellow */
-        --primary-foreground: 240 17% 10%;
+  :root {
+    --primary: 63 91% 65%; /* yellow */
+    --primary-foreground: 240 17% 10%;
 
-        --secondary: 25 41% 63%; /* orange */
-        --secondary-foreground: 25 59% 9%;
+    --secondary: 25 41% 63%; /* orange */
+    --secondary-foreground: 25 59% 9%;
 
-        --destructive: 348 53% 58%; /* red */
-        --destructive-foreground: 65 17% 98%;
+    --destructive: 348 53% 58%; /* red */
+    --destructive-foreground: 65 17% 98%;
+    --destructive-accent: 348 48% 65%;
 
-        --success: 166 91% 65%; /* green */
-        --success-foreground: 240 17% 10%;
+    --success: 166 91% 65%; /* green */
+    --success-foreground: 240 17% 10%;
 
-        --background: 209 17% 95%;
-        --foreground: 240 17% 10%;
-        --foreground-muted: 240 17% 17%;
+    --background: 209 17% 95%;
+    --foreground: 240 17% 10%;
+    --foreground-muted: 240 17% 17%;
 
-		--alt: 336 29% 39%;
-		--alt-foreground: 336 17% 90%;
+    --alt: 336 29% 39%;
+    --alt-foreground: 336 17% 90%;
 
-		--ring: 220 75% 68%;
-		--input: 220 40% 90%;
+    --ring: 220 75% 68%;
+    --input: 220 40% 90%;
 
-		--accent: 65 5% 96%;
-		--accent-foreground: 240 6% 10%;
+    --accent: 65 5% 96%;
+    --accent-foreground: 240 6% 10%;
 
-		--muted: 65 5% 96%;
-		--muted-foreground: 240 6% 10%;
+    --muted: 65 5% 96%;
+    --muted-foreground: 240 6% 10%;
 
-		--background-menu: 209 17% 93%;
-		--background-hover: 209 17% 91%;
-	}
+    --background-menu: 209 17% 93%;
+    --background-hover: 209 17% 91%;
+  }
 
-	@media (prefers-color-scheme: dark) {
-		:root {
-			--background-1: 65 9% 8%;
-			--background-2: 65 9% 9%;
-			--background-3: 65 9% 10%;
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background-1: 65 9% 8%;
+      --background-2: 65 9% 9%;
+      --background-3: 65 9% 10%;
 
-			--foreground: 65 7% 85%;
-			--foreground-muted: 65 6% 67%;
+      --foreground: 65 7% 85%;
+      --foreground-muted: 65 6% 67%;
 
-			--ring: 220 5% 84%;
+      --ring: 220 5% 84%;
 
-			--accent: 65 5% 15%;
-			--accent-foreground: 0 0% 98%;
+      --accent: 65 5% 15%;
+      --accent-foreground: 0 0% 98%;
 
-			--muted: 65 5% 15%;
-			--muted-foreground: 0 0% 98%;
+      --muted: 65 5% 15%;
+      --muted-foreground: 0 0% 98%;
 
-			--background-menu: 65 9% 10%;
-			--background-hover: 65 9% 12%;
-		}
-	}
-	* {
-		@apply border-foreground/10;
-	}
+      --background-menu: 65 9% 10%;
+      --background-hover: 65 9% 12%;
+    }
+  }
+  * {
+    @apply border-foreground/10;
+  }
 }

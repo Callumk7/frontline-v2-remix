@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TooltipProvider } from "./ui/tooltip";
 import { useState } from "react";
+import { PlaylistDialogOpenProvider, TooltipProvider } from ".";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // It is important to create the queryClient instance inside of our app, within react state.
@@ -13,14 +13,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
             staleTime: 60 * 1000,
           },
         },
-      }),
+      })
   );
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        {children}
-      </TooltipProvider>
+      <PlaylistDialogOpenProvider>
+        <TooltipProvider>{children}</TooltipProvider>
+      </PlaylistDialogOpenProvider>
     </QueryClientProvider>
   );
 }

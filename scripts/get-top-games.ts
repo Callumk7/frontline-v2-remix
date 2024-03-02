@@ -4,7 +4,7 @@
 // when needed.
 
 import { IGDB_BASE_URL, WORKER_URL } from "@/constants";
-import { fetchGamesFromIGDB } from "@/lib/igdb";
+import { fetchGamesFromIGDB } from "@/services";
 import { IGDBGameSchemaArray } from "@/types/igdb";
 import { db } from "db";
 import { games } from "db/schema/games";

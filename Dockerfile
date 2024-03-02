@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1
 
 # Adjust NODE_VERSION as desired
-ARG NODE_VERSION=20.5.0
+ARG NODE_VERSION=20.11.0
 FROM node:${NODE_VERSION}-slim as base
 
 LABEL fly_launch_runtime="Remix"
@@ -13,7 +13,7 @@ WORKDIR /app
 ENV NODE_ENV="production"
 
 # Install pnpm
-ARG PNPM_VERSION=8.12.1
+ARG PNPM_VERSION=8.15.1
 RUN npm install -g pnpm@$PNPM_VERSION
 
 
@@ -41,22 +41,9 @@ RUN pnpm prune --prod
 # Final stage for app image
 FROM base
 
-# Install packages needed for deployment
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y sqlite3 && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
 # Copy built application
 COPY --from=build /app /app
 
-# Setup sqlite3 on a separate volume
-RUN mkdir -p /data
-VOLUME /data
-
-# add shortcut for connecting to database CLI
-RUN echo "#!/bin/sh\nset -x\nsqlite3 \$DATABASE_URL" > /usr/local/bin/database-cli && chmod +x /usr/local/bin/database-cli
-
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-ENV DATABASE_URL="file:///data/sqlite.db"
 CMD [ "pnpm", "run", "start" ]

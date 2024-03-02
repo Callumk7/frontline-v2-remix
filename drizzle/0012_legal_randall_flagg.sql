@@ -1,0 +1,1 @@
+ALTER TABLE "genres_to_games" ADD CONSTRAINT "genres_to_games_genre_id_game_id_pk" PRIMARY KEY("genre_id","game_id");

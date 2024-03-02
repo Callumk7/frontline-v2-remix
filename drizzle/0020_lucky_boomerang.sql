@@ -1,0 +1,1 @@
+ALTER TABLE "users_to_games" ADD COLUMN "pinned" boolean DEFAULT false NOT NULL;

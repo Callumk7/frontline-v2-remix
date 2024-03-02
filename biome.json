@@ -1,0 +1,36 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"ignore": ["./app/entry.*"],
+		"rules": {
+			"recommended": true,
+			"style": {
+				"noNonNullAssertion": "off"
+			},
+            "complexity": {
+                "noForEach": "warn"
+            }
+		}
+	},
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": true,
+		"indentStyle": "tab",
+		"indentWidth": 4,
+		"lineWidth": 90,
+		"lineEnding": "lf",
+		"ignore": []
+	},
+	"overrides": [
+		{
+			"include": ["*.jsx", "*.tsx"],
+			"formatter": {
+				"indentWidth": 2
+			}
+		}
+	]
+}

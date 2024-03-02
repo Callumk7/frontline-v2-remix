@@ -1,7 +1,8 @@
-import { relations } from "drizzle-orm";
+import { avg, count, eq, isNotNull, relations } from "drizzle-orm";
 import {
 	boolean,
 	integer,
+	pgEnum,
 	pgTable,
 	primaryKey,
 	text,
@@ -9,6 +10,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { gamesOnPlaylists } from "./playlists";
 import { users } from "./users";
+import { activity } from "./activity";
+import { notes } from "./notes";
 
 export const games = pgTable("games", {
 	id: text("id").primaryKey(),
@@ -16,7 +19,7 @@ export const games = pgTable("games", {
 	title: text("title").notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
-	isUpdated: boolean("is_updated").default(false),
+	isUpdated: boolean("is_updated").default(false).notNull(),
 	follows: integer("follows").default(0).notNull(),
 	storyline: text("storyline"),
 	firstReleaseDate: timestamp("first_release_date"),
@@ -36,6 +39,8 @@ export const gamesRelations = relations(games, ({ one, many }) => ({
 	users: many(usersToGames),
 	playlists: many(gamesOnPlaylists),
 	genres: many(genresToGames),
+	activity: many(activity),
+	notes: many(notes),
 }));
 
 export const covers = pgTable("covers", {
@@ -44,7 +49,7 @@ export const covers = pgTable("covers", {
 	imageId: text("image_id").notNull().unique(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
-	isUpdated: boolean("is_updated").default(false),
+	isUpdated: boolean("is_updated").default(false).notNull(),
 });
 
 export const artworks = pgTable("artworks", {
@@ -53,7 +58,7 @@ export const artworks = pgTable("artworks", {
 	imageId: text("image_id").notNull().unique(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
-	isUpdated: boolean("is_updated").default(false),
+	isUpdated: boolean("is_updated").default(false).notNull(),
 });
 
 export const artworksRelations = relations(artworks, ({ one }) => ({
@@ -69,7 +74,7 @@ export const screenshots = pgTable("screenshots", {
 	imageId: text("image_id").notNull().unique(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
-	isUpdated: boolean("is_updated").default(false),
+	isUpdated: boolean("is_updated").default(false).notNull(),
 });
 
 export const screenshotsRelations = relations(screenshots, ({ one }) => ({
@@ -84,20 +89,27 @@ export const genres = pgTable("genres", {
 	name: text("name").notNull().unique(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
-	isUpdated: boolean("is_updated").default(false),
+	isUpdated: boolean("is_updated").default(false).notNull(),
 });
 
 export const genresRelations = relations(genres, ({ many }) => ({
 	games: many(genresToGames),
 }));
 
-export const genresToGames = pgTable("genres_to_games", {
-	genreId: integer("genre_id").notNull(),
-	gameId: integer("game_id").notNull(),
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at").notNull().defaultNow(),
-	isUpdated: boolean("is_updated").default(false),
-});
+export const genresToGames = pgTable(
+	"genres_to_games",
+	{
+		genreId: integer("genre_id").notNull(),
+		gameId: integer("game_id").notNull(),
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at").notNull().defaultNow(),
+		isUpdated: boolean("is_updated").default(false).notNull(),
+	},
+
+	(t) => ({
+		pk: primaryKey({ columns: [t.genreId, t.gameId] }),
+	}),
+);
 
 export const genresToGamesRelations = relations(genresToGames, ({ one }) => ({
 	genre: one(genres, {
@@ -110,6 +122,12 @@ export const genresToGamesRelations = relations(genresToGames, ({ one }) => ({
 	}),
 }));
 
+export const playedStatusEnum = pgEnum("played_status", [
+	"not_started",
+	"played",
+	"completed",
+]);
+
 export const usersToGames = pgTable(
 	"users_to_games",
 	{
@@ -117,18 +135,20 @@ export const usersToGames = pgTable(
 		gameId: integer("game_id").notNull(),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 		updatedAt: timestamp("updated_at").notNull().defaultNow(),
-		isUpdated: boolean("is_updated").default(false),
+		isUpdated: boolean("is_updated").default(false).notNull(),
 		played: boolean("played").default(false).notNull(),
 		playerRating: integer("player_rating"),
 		completed: boolean("completed").default(false).notNull(),
 		position: integer("position"),
+		pinned: boolean("pinned").notNull().default(false),
+		status: playedStatusEnum("played_status").notNull().default("not_started"),
 	},
 	(t) => ({
 		pk: primaryKey({ columns: [t.userId, t.gameId] }),
 	}),
 );
 
-export const usersToGamesRelations = relations(usersToGames, ({ one }) => ({
+export const usersToGamesRelations = relations(usersToGames, ({ one, many }) => ({
 	user: one(users, {
 		fields: [usersToGames.userId],
 		references: [users.id],
@@ -137,4 +157,5 @@ export const usersToGamesRelations = relations(usersToGames, ({ one }) => ({
 		fields: [usersToGames.gameId],
 		references: [games.gameId],
 	}),
+	comments: many(notes),
 }));

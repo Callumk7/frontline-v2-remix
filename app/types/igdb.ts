@@ -34,7 +34,7 @@ export const IGDBGameSchema = z.object({
 	aggregated_rating_count: z.number().optional(),
 	involved_companies: z.array(z.number()).optional(),
 	first_release_date: z.number().optional(),
-	saved: z.boolean().optional()
+	saved: z.boolean().optional(),
 });
 
 export const IGDBGameNoArtworkSchema = IGDBGameSchema.omit({
@@ -61,4 +61,3 @@ export type IGDBImage =
 	| "micro"
 	| "720p"
 	| "1080p";
-

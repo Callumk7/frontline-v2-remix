@@ -33,6 +33,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 		const result = await zx.parseFormSafe(request, {
 			playlistName: z.string().optional(),
 			isPrivate: zx.BoolAsString.optional(),
+			pinned: zx.BoolAsString.optional(),
 		});
 
 		if (!result.success) {
@@ -44,17 +45,34 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 				.update(playlists)
 				.set({
 					name: result.data.playlistName,
+					isUpdated: true,
+					updatedAt: new Date(),
 				})
 				.where(eq(playlists.id, playlistId));
 
 			return json({ updatedPlaylist });
 		}
 
-		if ('isPrivate' in result.data) {
+		if ("isPrivate" in result.data) {
 			const updatedPlaylist = await db
 				.update(playlists)
 				.set({
 					isPrivate: result.data.isPrivate,
+					isUpdated: true,
+					updatedAt: new Date(),
+				})
+				.where(eq(playlists.id, playlistId));
+
+			return json({ updatedPlaylist });
+		}
+
+		if ("pinned" in result.data) {
+			const updatedPlaylist = await db
+				.update(playlists)
+				.set({
+					creatorHasPinned: result.data.pinned,
+					isUpdated: true,
+					updatedAt: new Date(),
 				})
 				.where(eq(playlists.id, playlistId));
 

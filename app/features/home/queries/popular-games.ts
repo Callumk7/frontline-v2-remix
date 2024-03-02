@@ -19,7 +19,8 @@ export const getPopularGamesByPlaylist = async (): Promise<GameCount[]> => {
 		})
 		.from(gamesOnPlaylists)
 		.groupBy(gamesOnPlaylists.gameId)
-		.orderBy(desc(count(gamesOnPlaylists.gameId)));
+		.orderBy(desc(count(gamesOnPlaylists.gameId)))
+		.limit(75);
 
 	return popularGamesByPlaylist;
 };
@@ -34,7 +35,8 @@ export const getPopularGamesByCollection = async (): Promise<GameCount[]> => {
 		})
 		.from(usersToGames)
 		.groupBy(usersToGames.gameId)
-		.orderBy(desc(count(usersToGames.gameId)));
+		.orderBy(desc(count(usersToGames.gameId)))
+		.limit(75);
 
 	return popularGamesByCollection;
 };
@@ -97,15 +99,17 @@ export const combinePopularGameData = async ({
 		},
 	});
 
-	const processedData = gameData.map((data) => {
-		const collectionCount = collectionMap.get(data.gameId) || 0;
-		const playlistCount = playlistMap.get(data.gameId) || 0;
-		return {
-			collectionCount: collectionCount,
-			playlistCount: playlistCount,
-			...data,
-		};
-	});
+	const processedData = gameData
+		.filter((data) => collectionMap.has(data.gameId) && playlistMap.has(data.gameId))
+		.map((data) => {
+			const collectionCount = collectionMap.get(data.gameId);
+			const playlistCount = playlistMap.get(data.gameId);
+			return {
+				collectionCount,
+				playlistCount,
+				...data,
+			};
+		});
 
 	// sort by collection count
 	processedData.sort(

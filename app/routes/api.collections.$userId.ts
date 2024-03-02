@@ -1,3 +1,4 @@
+import { activityManager } from "@/services/events/events.server";
 import { InsertUsersToGames } from "@/types/games";
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { db } from "db";
@@ -22,6 +23,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 		completed: zx.BoolAsString.optional(),
 		starred: zx.BoolAsString.optional(),
 		rating: zx.NumAsString.optional(),
+		pinned: zx.BoolAsString.optional(),
 	});
 
 	// early return if the game is in the wrong format
@@ -34,17 +36,20 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 		gameId: result.data.gameId,
 	};
 
-	if (result.data.played) {
+	if (result.data.played !== undefined) {
 		gameUpdate.played = result.data.played;
 	}
-	if (result.data.completed) {
+	if (result.data.completed !== undefined) {
 		gameUpdate.completed = result.data.completed;
 	}
-	if (result.data.starred) {
+	if (result.data.starred !== undefined) {
 		console.log("Game Starring not yet implemented on the database...");
 	}
 	if (result.data.rating) {
 		gameUpdate.playerRating = result.data.rating;
+	}
+	if (result.data.pinned !== undefined) {
+		gameUpdate.pinned = result.data.pinned;
 	}
 
 	console.log(gameUpdate);
@@ -60,7 +65,15 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 		)
 		.returning();
 
-	console.log(updateGame);
+	if (gameUpdate.played) {
+		activityManager.markGameAsPlayed(userId, result.data.gameId);
+	}
+	if (gameUpdate.completed) {
+		activityManager.markGameAsCompleted(userId, result.data.gameId);
+	}
+	if (gameUpdate.playerRating) {
+		activityManager.rateGame(userId, result.data.gameId, result.data.rating!);
+	}
 
 	return json({ updateGame });
 };

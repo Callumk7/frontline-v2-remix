@@ -5,4 +5,3 @@ export function splitArray<T>(arr: T[], predicate: (value: T) => boolean): [T[],
 		[[], []] as [T[], T[]],
 	);
 }
-

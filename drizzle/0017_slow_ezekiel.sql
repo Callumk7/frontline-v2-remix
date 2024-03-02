@@ -1,0 +1,1 @@
+ALTER TYPE "parent_type" ADD VALUE 'game';

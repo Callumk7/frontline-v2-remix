@@ -7,6 +7,9 @@ export default {
 			fontSize: {
 				title: ["12rem", "3rem"],
 			},
+			fontFamily: {
+				sans: ["Poppins", "sans-serif"],
+			},
 			colors: {
 				background: {
 					DEFAULT: "hsl(var(--background-1))",
@@ -22,6 +25,7 @@ export default {
 				destructive: {
 					DEFAULT: "hsl(var(--destructive))",
 					foreground: "hsl(var(--destructive-foreground))",
+					accent: "hsl(var(--destructive-accent))",
 				},
 				primary: {
 					DEFAULT: "hsl(var(--primary))",
@@ -49,8 +53,8 @@ export default {
 				},
 				ring: "hsl(var(--ring))",
 				input: "hsl(var(--input))",
-			}
+			},
 		},
 	},
-	plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography')],
+	plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;

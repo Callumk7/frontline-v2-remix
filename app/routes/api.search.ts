@@ -1,5 +1,5 @@
 import { IGDB_BASE_URL, WORKER_URL } from "@/constants";
-import { FetchOptions, fetchGamesFromIGDB } from "@/lib/igdb";
+import { FetchOptions, fetchGamesFromIGDB } from "@/services";
 import { IGDBGameSchema } from "@/types/igdb";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 

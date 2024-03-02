@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS "notes" (
 	"author_id" text NOT NULL,
 	"location" "parent_type",
 	"collection_id" text,
-	"game_id" text,
+	"game_id" integer,
 	"playlist_id" text,
 	"profile_id" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,

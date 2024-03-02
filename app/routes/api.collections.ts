@@ -1,10 +1,12 @@
 import { WORKER_URL } from "@/constants";
+import { activityManager } from "@/services/events/events.server";
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { db } from "db";
 import { usersToGames } from "db/schema/games";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { zx } from "zodix";
+import { StatusCodes, ReasonPhrases } from "http-status-codes";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
 	// This action needs to handle POST and DELETE requests for games
@@ -24,7 +26,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 				.insert(usersToGames)
 				.values({
 					gameId,
-					userId
+					userId,
 				})
 				.onConflictDoNothing()
 				.returning();
@@ -40,41 +42,50 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 				}
 			});
 
-			return json({
-				success: savedGame,
-			});
-		} else {
-			return json({
-				error: result.error,
-			});
+			activityManager.addToCollection(userId, gameId);
+
+			return json(
+				{
+					success: savedGame,
+				},
+				{ status: StatusCodes.CREATED, statusText: ReasonPhrases.CREATED },
+			);
 		}
+		return json(
+			{
+				error: result.error,
+			},
+			{
+				status: StatusCodes.BAD_REQUEST,
+				statusText: ReasonPhrases.BAD_REQUEST,
+			},
+		);
 	}
 
 	// DELETE /api/collections
 	if (request.method === "DELETE") {
 		const result = await zx.parseFormSafe(request, {
 			gameId: zx.NumAsString,
-			userId: z.string()
+			userId: z.string(),
 		});
 
 		if (result.success) {
+			const { gameId, userId } = result.data;
 			// remove a game from the user's collection
 			const removedGame = await db
 				.delete(usersToGames)
 				.where(
-					and(
-						eq(usersToGames.userId, result.data.userId),
-						eq(usersToGames.gameId, result.data.gameId),
-					),
+					and(eq(usersToGames.userId, userId), eq(usersToGames.gameId, gameId)),
 				);
+
+			activityManager.removeFromCollection(userId, gameId);
 
 			return json({
 				success: removedGame,
 			});
-		} else {
-			return json({
-				error: result.error,
-			});
 		}
+		return json({
+			error: result.error,
+		});
 	}
 };

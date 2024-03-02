@@ -1,0 +1,1 @@
+ALTER TABLE "playlists" ADD COLUMN "creator_has_pinned" boolean DEFAULT false NOT NULL;

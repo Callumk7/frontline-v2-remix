@@ -85,6 +85,104 @@
       "when": 1706873639433,
       "tag": "0011_thin_ulik",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1707395990253,
+      "tag": "0012_legal_randall_flagg",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1707402542996,
+      "tag": "0013_nasty_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1707750078664,
+      "tag": "0014_volatile_landau",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1707829762244,
+      "tag": "0015_exotic_toro",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1707845976953,
+      "tag": "0016_fluffy_doctor_strange",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1707925803365,
+      "tag": "0017_slow_ezekiel",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1708204827459,
+      "tag": "0018_unusual_jack_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1708269825753,
+      "tag": "0019_amused_mephisto",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1708277334712,
+      "tag": "0020_lucky_boomerang",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1708345348757,
+      "tag": "0021_lucky_harpoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1708694326919,
+      "tag": "0022_mushy_anita_blake",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1708764841976,
+      "tag": "0023_flimsy_mauler",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1709030823975,
+      "tag": "0024_damp_lorna_dane",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1709224286793,
+      "tag": "0025_gray_fenris",
+      "breakpoints": true
     }
   ]
 }
