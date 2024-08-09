@@ -8,7 +8,6 @@ interface SidebarProps {
 	userId: string;
 	playlists: PlaylistWithCreator[];
 	hasSession: boolean;
-	activityFeed: UserWithActivityFeedEntry[];
 }
 
 export function Sidebar({ playlists, hasSession }: SidebarProps) {

@@ -40,9 +40,10 @@ export async function getSession(supabase: SupabaseClient) {
 }
 
 export async function authenticate(request: Request) {
-	const { supabase } = createServerClient(request);
+	const { supabase, headers } = createServerClient(request);
 	const session = await getSession(supabase);
 	if (!session) {
-		throw new Error("UNAUTHENTICATED");
+		throw redirect("/?index", { headers });
 	}
+	return session
 }

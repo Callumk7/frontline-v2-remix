@@ -1,22 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
+import { useCollectionData } from "@/routes/_app.collection._index/route";
 import { useFetcher } from "@remix-run/react";
 import { useState } from "react";
 
 interface RateGameDialogProps {
 	gameId: number;
-	userId: string;
 	isRateGameDialogOpen: boolean;
 	setIsRateDialogOpen: (isOpen: boolean) => void;
 }
 
 export function RateGameDialog({
 	gameId,
-	userId,
 	isRateGameDialogOpen,
 	setIsRateDialogOpen,
 }: RateGameDialogProps) {
+	const { session } = useCollectionData();
 	const rateFetcher = useFetcher();
 	const [rating, setRating] = useState(0);
 	return (
@@ -28,7 +28,7 @@ export function RateGameDialog({
 				<rateFetcher.Form
 					className="flex flex-col gap-3"
 					method="put"
-					action={`/api/collections/${userId}`}
+					action={`/api/collections/${session.user.id}`}
 					autoFocus={false}
 				>
 					<div className="w-full text-5xl font-bold text-center">{rating}</div>

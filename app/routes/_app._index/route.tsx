@@ -1,26 +1,19 @@
 import { Container } from "@/components";
-import { createServerClient, getSession } from "@/services";
+import { authenticate } from "@/services";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { typedjson, useTypedLoaderData, redirect } from "remix-typedjson";
-import { getFriendActivity, transformActivity } from "@/model";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { ActivityFeedCard } from "./components/feed";
+import { getSortedFriendActivity } from "./queries.server";
 
 ///
 /// LOADER
 ///
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-	const { supabase, headers } = createServerClient(request);
-	const session = await getSession(supabase);
+  const session = await authenticate(request);
 
-	if (!session) {
-		return redirect("/login");
-	}
+  const feed = await getSortedFriendActivity(session.user.id);
 
-	const activity = await getFriendActivity(session.user.id);
-	// This sorts by timestamp, might want to move that out of this function
-	const feed = transformActivity(activity);
-
-	return typedjson({ session, feed }, { headers });
+	return typedjson({ session, feed });
 };
 
 export default function AppIndex() {

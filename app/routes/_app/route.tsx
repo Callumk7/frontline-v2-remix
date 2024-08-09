@@ -5,28 +5,29 @@ import {
 	Sidebar,
 	usePlaylistDialogOpen,
 } from "@/components";
-import { getFriendActivity, getUserCollectionGameIds, transformActivity } from "@/model";
 import { createServerClient, getSession } from "@/services";
-import { useUserCacheStore } from "@/store";
 import { LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { Outlet, useFetcher } from "@remix-run/react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useEffect, useState } from "react";
-import { redirect, typedjson, useTypedLoaderData, useTypedRouteLoaderData } from "remix-typedjson";
-import { getCreatedAndFollowedPlaylists, getUserFriends } from "./loader";
+import {
+	redirect,
+	typedjson,
+	useTypedLoaderData,
+	useTypedRouteLoaderData,
+} from "remix-typedjson";
+import { getCreatedAndFollowedPlaylists } from "./queries.server";
 
 import { ErrorBoundary as _ErrorBoundary } from "@/components/error-boundary";
 import { getUserDetails } from "@/model/users/database-queries";
+import { getUserCollectionGameIds } from "@/model";
 export const ErrorBoundary = _ErrorBoundary;
 
 export const meta: MetaFunction = () => {
 	return [{ title: "playQ" }, { name: "description", content: "What are you playing?" }];
 };
 
-// We are going to use this base route for supabase authentication. This is also where
-// we define the basic layout, including navigation bar and sidebar.
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-	// env variables that we need on the browser:
 	const ENV = {
 		SUPABASE_URL: process.env.SUPABASE_URL!,
 		SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY!,
@@ -40,54 +41,25 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	}
 
 	const userPlaylistsPromise = getCreatedAndFollowedPlaylists(session.user.id);
-	const userFriendsPromise = getUserFriends(session.user.id);
-	const friendActivityPromise = getFriendActivity(session.user.id);
+  const userCollectionIdsPromise = getUserCollectionGameIds(session.user.id);
 
-	// Set the store for user gameIds as a cache on the app route.
-	const userCollectionPromise = getUserCollectionGameIds(session.user.id);
-  const userDetailsPromise = getUserDetails(session.user.id);
+	const userDetailsPromise = getUserDetails(session.user.id);
 
-	const [userPlaylists, userFriends, friendActivity, userCollection, userDetails] = await Promise.all([
+	const [userPlaylists, userCollectionIds, userDetails] = await Promise.all([
 		userPlaylistsPromise,
-		userFriendsPromise,
-		friendActivityPromise,
-		userCollectionPromise,
-    userDetailsPromise,
+    userCollectionIdsPromise,
+		userDetailsPromise,
 	]);
 
-	const activityFeed = transformActivity(friendActivity);
-
 	return typedjson(
-		{ ENV, session, userPlaylists, userFriends, userCollection, activityFeed, userDetails },
+		{ ENV, session, userPlaylists, userCollectionIds, userDetails },
 		{ headers },
 	);
 };
 
 export default function AppLayout() {
-	const { ENV, session, userPlaylists, userFriends, userCollection, activityFeed, userDetails } =
+	const { ENV, session, userPlaylists, userDetails } =
 		useTypedLoaderData<typeof loader>();
-	// set the store for use around the app
-	const setUserCollection = useUserCacheStore((state) => state.setUserCollection);
-	const setUserFriends = useUserCacheStore((state) => state.setUserFriends);
-	const setUserPlaylists = useUserCacheStore((state) => state.setUserPlaylists);
-	const setFollowedPlaylists = useUserCacheStore((state) => state.setFollwedPlaylists);
-
-	// SET THE CACHE ON INITIAL LOAD FOR USER DETAILS THAT CAN BE USED AROUND THE APP
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Only run on initial render
-	useEffect(() => {
-		setUserCollection(userCollection);
-		setUserFriends(userFriends.map((friend) => friend.id));
-		setUserPlaylists(
-			userPlaylists
-				.filter((playlist) => playlist.creator.id === session.user.id)
-				.map((playlist) => playlist.id),
-		);
-		setFollowedPlaylists(
-			userPlaylists
-				.filter((playlist) => playlist.creator.id !== session.user.id)
-				.map((playlist) => playlist.id),
-		);
-	}, []);
 
 	const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 	const { playlistDialogOpen, setPlaylistDialogOpen } = usePlaylistDialogOpen();
@@ -131,7 +103,6 @@ export default function AppLayout() {
 						userId={session.user.id}
 						playlists={userPlaylists}
 						hasSession={!!session}
-						activityFeed={activityFeed}
 					/>
 				</div>
 				<div className={`h-full ${sidebarOpen ? "lg:pl-64" : ""}`}>
@@ -140,7 +111,7 @@ export default function AppLayout() {
 						session={session}
 						sidebarOpen={sidebarOpen}
 						setSidebarOpen={setSidebarOpen}
-            userDetails={userDetails}
+						userDetails={userDetails}
 					/>
 					<Container className="py-20 md:pt-0">
 						<Outlet />
@@ -167,4 +138,3 @@ export function useAppData() {
 	}
 	return data;
 }
-

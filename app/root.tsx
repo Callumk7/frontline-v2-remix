@@ -1,18 +1,15 @@
-import stylesheet from "@/tw.css";
+import "@/tw.css";
 import type { LinksFunction } from "@remix-run/node";
 import {
 	Links,
-	LiveReload,
 	Meta,
 	Outlet,
 	Scripts,
 	ScrollRestoration,
-	useRouteError,
 } from "@remix-run/react";
 import { Providers } from "./components/providers";
 
 export const links: LinksFunction = () => [
-	{ rel: "stylesheet", href: stylesheet },
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
 	{
 		rel: "preconnect",
@@ -60,7 +57,6 @@ export default function App() {
 					<Outlet />
 					<ScrollRestoration />
 					<Scripts />
-					<LiveReload />
 				</body>
 			</html>
 		</Providers>

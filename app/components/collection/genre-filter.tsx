@@ -58,10 +58,11 @@ export function GenreToggles({
 			</Tag>
 			{genres.map((genre) => (
 				<TagToggle
+					key={genre}
 					pressed={genreFilter.includes(genre)}
 					onPressedChange={() => handleGenreToggled(genre)}
 					name="genres"
-          value={genre}
+					value={genre}
 				>
 					{genre}
 				</TagToggle>

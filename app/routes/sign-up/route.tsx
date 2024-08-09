@@ -52,8 +52,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 		console.log(dbResult);
 
-		return redirect("/sign-up-confirmation", { headers });
-	} else return json({ failure: result.error });
+		return redirect("/explore", { headers });
+	}
+
+  return json({ failure: result.error });
 };
 
 export default function SignUpPage() {

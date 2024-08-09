@@ -28,6 +28,9 @@ import {
 	sortByFollowers,
 } from "./loader";
 import { applySorting } from "./util";
+import { db } from "db";
+import { eq } from "drizzle-orm";
+import { followers } from "db/schema/playlists";
 
 ///
 /// LOADER
@@ -60,14 +63,25 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const playlistData = await getPlaylistWithDiscoveryData(playlistIds);
 	sortByFollowers(playlistData);
 
-	return typedjson({ playlistData, session });
+	// for now, we also need to get the list of followed playlists
+	const followedPlaylists = await db.query.followers
+		.findMany({
+			where: eq(followers.userId, session.user.id),
+			columns: {
+				playlistId: true,
+			},
+		})
+		.then((results) => results.map((result) => result.playlistId));
+
+	return typedjson({ playlistData, session, followedPlaylists });
 };
 
 ///
 /// ROUTE
 ///
 export default function ExplorePlaylists() {
-	const { playlistData, session } = useTypedLoaderData<typeof loader>();
+	const { playlistData, session, followedPlaylists } =
+		useTypedLoaderData<typeof loader>();
 
 	const [limit, setLimit] = useState("50");
 	const [offset, setOffset] = useState(0);
@@ -93,7 +107,11 @@ export default function ExplorePlaylists() {
 				/>
 			</div>
 			{isTableView ? (
-				<PlaylistTableView userId={session.user.id} playlists={sortedItems} />
+				<PlaylistTableView
+					userId={session.user.id}
+					playlists={sortedItems}
+					followedPlaylists={followedPlaylists}
+				/>
 			) : (
 				<div className="grid gap-3">
 					{sortedItems.map((playlist) => (

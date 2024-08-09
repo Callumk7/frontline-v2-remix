@@ -1,7 +1,6 @@
-import { Providers } from "@/components/providers";
 import { db } from "db";
 import { followers, playlists } from "db/schema/playlists";
-import { and, avg, count, countDistinct, desc, inArray, isNotNull } from "drizzle-orm";
+import { and, avg, count, desc, inArray, isNotNull } from "drizzle-orm";
 
 // I think the aggregation here is causing the offset and limit to break. I can use this
 // as an opportunity to maybe cache the top 200-500 most popular playlists, and then use

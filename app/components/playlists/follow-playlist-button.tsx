@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { useUserCacheStore } from "@/store";
 import { BookmarkFilledIcon, UpdateIcon } from "@radix-ui/react-icons";
 import { useFetcher } from "@remix-run/react";
 
@@ -14,22 +13,11 @@ export function FollowPlaylistButton({
 	playlistId,
 }: FollowPlaylistButtonProps) {
 	const followFetcher = useFetcher();
-	const appendToFollowedPlaylists = useUserCacheStore(
-		(state) => state.appendToFollowedPlaylists,
-	);
-	const removeFromFollowedPlaylists = useUserCacheStore(
-		(state) => state.removeFromFollowedPlaylists,
-	);
 	const handleToggle = () => {
 		followFetcher.submit(
 			{ userId: userId, playlistId: playlistId },
 			{ method: isFollowedByUser ? "DELETE" : "POST", action: "/api/followers" },
 		);
-		if (isFollowedByUser) {
-			removeFromFollowedPlaylists(playlistId);
-		} else {
-			appendToFollowedPlaylists(playlistId);
-		}
 	};
 	return (
 		<Button

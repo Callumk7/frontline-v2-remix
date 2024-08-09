@@ -1,4 +1,3 @@
-import { UserWithActivity } from "@/types";
 import { db } from "db";
 import { playlists, followers } from "db/schema/playlists";
 import { friends } from "db/schema/users";
@@ -19,15 +18,6 @@ export const getCreatedAndFollowedPlaylists = async (userId: string) => {
 				playlist: {
 					with: {
 						creator: true,
-						games: {
-							with: {
-								game: {
-									with: {
-										cover: true,
-									},
-								},
-							},
-						},
 					},
 				},
 			},
@@ -43,19 +33,6 @@ export const getCreatedAndFollowedPlaylists = async (userId: string) => {
 	const allPlaylists = [...allPlaylistsSet];
 
 	return allPlaylists;
-};
-
-export const getUserFriends = async (userId: string) => {
-	const userFriends = await db.query.friends
-		.findMany({
-			where: eq(friends.userId, userId),
-			with: {
-				friend: true,
-			},
-		})
-		.then((results) => results.map((result) => result.friend));
-
-	return userFriends;
 };
 
 export const getUserFriendIds = async (userId: string) => {

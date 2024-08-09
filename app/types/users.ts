@@ -2,6 +2,7 @@ import { friends, users } from "db/schema/users";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { Activity, ActivityWithDetails } from "./activity";
+import { Follower, Game, Playlist, UsersToGames } from ".";
 
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
@@ -31,3 +32,9 @@ export type UserWithActivity = User & {
 export type UserWithActivityFeedEntry = User & {
 	activity: ActivityWithDetails;
 };
+
+export type UserWithPlaylistsFollowsGames = User & {
+	games: UsersToGames[];
+	playlistFollows: Follower[];
+	playlists: Playlist[];
+}

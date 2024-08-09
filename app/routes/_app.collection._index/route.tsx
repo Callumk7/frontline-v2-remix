@@ -1,51 +1,26 @@
 import { RateGameDialog } from "@/components";
-import { getUserPlaylists } from "@/features/playlists";
-import {
-	getUserGamesWithDetails,
-	getUserGenres,
-	transformCollectionIntoGames,
-} from "@/model";
-import { createServerClient, getSession } from "@/services";
+import { transformCollectionIntoGames } from "@/model";
+import { authenticate } from "@/services";
 import { GameWithCollection } from "@/types";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect, typedjson, useTypedLoaderData } from "remix-typedjson";
+import {
+	typedjson,
+	useTypedRouteLoaderData,
+} from "remix-typedjson";
 
 import { CollectionView } from "./components/CollectionView";
 import { useHandleRateGameDialog } from "./hooks/rate-game-dialog";
-import { useFetcher } from "@remix-run/react";
-
-const getLimitAndOffset = (request: Request) => {
-	const url = new URL(request.url);
-	const queryParams = url.searchParams;
-	let limit: number | undefined = Number(queryParams.get("limit")); 
-	const offset = Number(queryParams.get("offset"));
-  if (limit === 0) limit = undefined;
-	return { limit, offset };
-};
+import { getCollectionData } from "./queries.server";
 
 ///
 /// LOADER FUNCTION
 ///
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-	const { supabase, headers } = createServerClient(request);
-	const session = await getSession(supabase);
-	if (!session) {
-		return redirect("/?index", {
-			headers,
-		});
-	}
+	const session = await authenticate(request);
 
-	const { limit, offset } = getLimitAndOffset(request);
-
-	const userCollectionPromise = getUserGamesWithDetails(session.user.id, limit, offset);
-	const userPlaylistsPromise = getUserPlaylists(session.user.id);
-	const allUserGenresPromise = getUserGenres(session.user.id);
-
-	const [userCollection, userPlaylists, userGenres] = await Promise.all([
-		userCollectionPromise,
-		userPlaylistsPromise,
-		allUserGenresPromise,
-	]);
+	const { userCollection, userPlaylists, userGenres } = await getCollectionData(
+		session.user.id,
+	);
 
 	// Not sure about this transform function. At this point, it might be too
 	// arbitrary. Consider the data needs and review at a later date.
@@ -59,9 +34,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 /// ROUTE
 ///
 export default function CollectionIndex() {
-	const { userPlaylists, games, session, genreNames } =
-		useTypedLoaderData<typeof loader>();
-
 	const {
 		isRateGameDialogOpen,
 		setIsRateGameDialogOpen,
@@ -71,19 +43,22 @@ export default function CollectionIndex() {
 
 	return (
 		<>
-			<CollectionView
-				games={games}
-				userPlaylists={userPlaylists}
-				userId={session.user.id}
-				genreNames={genreNames}
-				handleOpenRateGameDialog={handleOpenRateGameDialog}
-			/>
+			<CollectionView handleOpenRateGameDialog={handleOpenRateGameDialog} />
 			<RateGameDialog
-				userId={session.user.id}
 				gameId={dialogGameId}
 				isRateGameDialogOpen={isRateGameDialogOpen}
 				setIsRateDialogOpen={setIsRateGameDialogOpen}
 			/>
 		</>
 	);
+}
+
+export function useCollectionData() {
+	const data = useTypedRouteLoaderData<typeof loader>("routes/_app.collection._index");
+	if (data === undefined) {
+		throw new Error(
+			"useCollectionData must be used within the _app.collection._index route or its children",
+		);
+	}
+	return data;
 }

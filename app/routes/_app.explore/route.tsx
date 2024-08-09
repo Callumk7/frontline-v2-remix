@@ -25,15 +25,11 @@ const exploreLinks = [
 		name: "People",
 		to: "/explore/people",
 	},
-	{
-		name: "Internal",
-		to: "/explore/internal",
-	},
 ];
 
 function ExploreNav() {
 	return (
-		<nav className="flex justify-between w-1/3">
+		<nav className="flex gap-4">
 			{exploreLinks.map((link) => (
 				<NavigationLink key={link.name} link={link} />
 			))}
